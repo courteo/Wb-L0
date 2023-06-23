@@ -19,11 +19,10 @@ func NewMemoryRepo(db *sql.DB) *NatsDataMemoryRepository {
 		Data:   db,
 	}
 }
-//TODO
 
 func (repo *NatsDataMemoryRepository) FindNatsData(ID string) (*model.NatsData, error) {
 	nData := &model.NatsData{}
-	row := repo.Data.QueryRow(`SELECT * FROM natsdata WHERE OrderUID  = $1`, ID)
+	row := repo.Data.QueryRow(`SELECT * FROM orders WHERE OrderUID  = $1`, ID)
 	err := row.Scan(&nData)
 	if err != nil {
 		return nil, model.ErrNoNatsData
@@ -34,7 +33,7 @@ func (repo *NatsDataMemoryRepository) FindNatsData(ID string) (*model.NatsData, 
 func (repo *NatsDataMemoryRepository) Add(nData *model.NatsData) error {
 	byte, err := json.Marshal(nData)
 	data := st.OrderJSON{Order_uid: nData.OrderUID, DataJSON: string(byte)}
-	_, err = repo.Data.Exec( `insert into "orders" (order_id, data) values ($1,$2)`, data.Order_uid, data.DataJSON)
+	_, err = repo.Data.Exec( `insert into orders (order_id, data) values ($1,$2)`, data.Order_uid, data.DataJSON)
 	return err
 }
 

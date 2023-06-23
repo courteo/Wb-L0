@@ -3,9 +3,13 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	// "io/ioutil"
 	"log"
+	// "os"
+	// "withNats/pkg/model"
 	"withNats/pkg/model/cache"
 	m "withNats/pkg/model/db"
+
 	"withNats/pkg/publisher"
 	"withNats/pkg/structs"
 	"withNats/pkg/subscriber"
@@ -59,28 +63,50 @@ func main() {
 
 	go Subscriber.Subscribe()
 
+	// file, err := os.Open("data/model.json")
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+	// byteValue, err := ioutil.ReadAll(file)
+	// if err != nil {
+	// 	log.Println("read all ", err.Error())
+	// }
+	// var data model.NatsData
+	// err = json.Unmarshal(byteValue, &data)
+
 	router := gin.Default()
+	// Subscriber.Cache.Add(&data)
 
 	router.LoadHTMLFiles("static/index.html", "static/bye_page.html")
 	router.Static("static/css", "./static/css")
-
 
 	var o structs.OrderJSON
 	router.GET("/", func(c *gin.Context) {
 		index(c)
 		id := getId(c)
+		log.Println("get ", id)
 		data, err := Subscriber.Cache.FindNatsData(id)
 		if err != nil {
 			log.Println(err.Error())
+			c.PureJSON(404, gin.H{
+				"error": "Not found with id: " + id,
+			})
+			return
 		} else {
 			log.Printf("OK: found order with id: %v\n", id)
 		}
 
 		d, err := json.Marshal(data)
 		o.DataJSON = string(d)
+		o.Order_uid = id
+		c.PureJSON(200, gin.H{
+			"id":   o.Order_uid,
+			"data": o.DataJSON,
+		})
 	})
 
 	router.GET("/bye_page", func(c *gin.Context) {
+		log.Println("bye_page ")
 		c.PureJSON(200, gin.H{
 			"id":   o.Order_uid,
 			"data": o.DataJSON,

@@ -1,6 +1,8 @@
 package cache
 
-import model "withNats/pkg/model"
+import (
+	model "withNats/pkg/model"
+)
 
 type NatsDataCacheRepository struct {
 	data   []model.NatsData
@@ -9,6 +11,7 @@ type NatsDataCacheRepository struct {
 
 func (repo *NatsDataCacheRepository) FindNatsData(ID string) (*model.NatsData, error) {
 	for _, val := range repo.data {
+		// log.Println(val.OrderUID, ID)
 		if val.OrderUID == ID {
 			return &val, nil
 		}
