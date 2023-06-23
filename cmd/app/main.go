@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+
 	// "io/ioutil"
 	"log"
 	// "os"
@@ -14,7 +15,7 @@ import (
 	"withNats/pkg/structs"
 	"withNats/pkg/subscriber"
 
-	_ "github.com/jackc/pgx/v4/stdlib"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
 
 	"github.com/gin-gonic/gin"
@@ -22,38 +23,68 @@ import (
 
 // docker run -p 4223:4223 -p 8223:8223 nats-streaming -p 4223 -m 8223
 
+// func main3() {
+// 	urlExample := "postgres://username:password@localhost:5432/database_name"
+// 	urlExample = "postgres://postgres:qwerty@localhost:5433/postgres?sslmode=disable"
+// 	conn, err := pgx.Connect(context.Background(), urlExample)
+// 	if err != nil {
+// 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+// 		os.Exit(1)
+// 	}
+// 	defer conn.Close(context.Background())
 
+// 	var name string
+// 	var weight int64
+// 	err = conn.QueryRow(context.Background(), `create table if not exists test (
+// 		order_id varchar(10) not null unique,
+// 		data json not null
+// 	);`).Scan()
+
+// 	// err = conn.QueryRow(context.Background(), "select * from test", 42).Scan(&name, &weight)
+// 	if err != nil {
+// 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
+// 		os.Exit(1)
+// 	}
+
+// 	fmt.Println(name, weight)
+// }
+
+type Test struct {
+	ID   int
+	Name string
+}
 
 func main() {
 	zapLogger, _ := zap.NewProduction()
 
 	defer zapLogger.Sync()
 	logger := zapLogger.Sugar()
-	connStr := "postgres://postgres:qwerty@localhost:5432?sslmode=disable"
+	connStr := "postgres://postgres:qwerty@localhost:5433/postgres?sslmode=disable"
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {
-		logger.Panicf("sql open %s",err.Error())
+		logger.Panicf("sql open %s", err.Error())
 	}
 
 	db.SetMaxOpenConns(10)
 
 	err = db.Ping()
 	if err != nil {
-		logger.Panicf("db ping  %s",err.Error())
+		logger.Panicf("db ping  %s", err.Error())
 	}
+
 	Cache := cache.NatsDataCacheRepository{}
 	ModelDb := m.NewMemoryRepo(db)
 
 	subSettings := structs.SubcribeSettings{
 		Channel: "wb",
-		Claster: "wb-claster",
-		Client: "client",
+		Cluster: "test-cluster",
+		Client:  "client",
 	}
 
 	Subscriber := subscriber.Subscriber{
 		SubscribeSt: subSettings,
-		Db: ModelDb,
-		Cache: &Cache,
+		Db:          ModelDb,
+		Cache:       &Cache,
 	}
 	err = Subscriber.DbToCache()
 	if err != nil {
@@ -63,19 +94,8 @@ func main() {
 
 	go Subscriber.Subscribe()
 
-	// file, err := os.Open("data/model.json")
-	// if err != nil {
-	// 	log.Println(err)
-	// }
-	// byteValue, err := ioutil.ReadAll(file)
-	// if err != nil {
-	// 	log.Println("read all ", err.Error())
-	// }
-	// var data model.NatsData
-	// err = json.Unmarshal(byteValue, &data)
 
 	router := gin.Default()
-	// Subscriber.Cache.Add(&data)
 
 	router.LoadHTMLFiles("static/index.html", "static/bye_page.html")
 	router.Static("static/css", "./static/css")

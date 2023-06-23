@@ -11,7 +11,7 @@ import (
 )
 
 func Publisher(settings structs.SubcribeSettings) {
-	sc, err := stan.Connect(settings.Claster, "client1", stan.NatsURL("nats://localhost:4223"))
+	sc, err := stan.Connect(settings.Cluster, "client1", stan.NatsURL("nats://localhost:4223"))
 	if err != nil {
 		log.Fatal("main connect ", err.Error())
 	}

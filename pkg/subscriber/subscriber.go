@@ -6,18 +6,19 @@ import (
 	"withNats/pkg/model"
 	r "withNats/pkg/model/db"
 	"withNats/pkg/structs"
+
 	"github.com/nats-io/stan.go"
 )
 
 type Subscriber struct {
 	SubscribeSt structs.SubcribeSettings
-	Cache model.NatsDataRepo
-	Db	*r.NatsDataMemoryRepository
+	Cache       model.NatsDataRepo
+	Db          *r.NatsDataMemoryRepository
 }
 
 func (s *Subscriber) Subscribe() {
 
-	sc, err := stan.Connect(s.SubscribeSt.Claster, s.SubscribeSt.Client, stan.NatsURL("nats://localhost:4223"))
+	sc, err := stan.Connect(s.SubscribeSt.Cluster, s.SubscribeSt.Client, stan.NatsURL("nats://localhost:4223"))
 	if err != nil {
 		log.Fatal("sub connect ", err.Error())
 	}
@@ -58,7 +59,7 @@ func (s *Subscriber) DbToCache() error {
 		log.Println("DbToCache Query error ", err.Error())
 		return err
 	}
-
+	log.Println("DbToCache Query")
 	for data.Next() {
 		var order structs.OrderJSON
 		err := data.Scan(&order.Order_uid, &order.DataJSON)
