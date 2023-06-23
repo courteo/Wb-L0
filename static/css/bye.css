@@ -1,0 +1,17 @@
+* {box-sizing: border-box;}
+body {
+    background: #1f1512 url(../../images/town.jpg)no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;}
+h1 {
+    font-style: italic;
+    color: #1f1512;
+    font-size: 1em;
+    align-items: center;
+    position:absolute;
+    top:30%;
+    left:30%;
+    font-size: 64px;
+}

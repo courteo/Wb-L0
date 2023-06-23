@@ -1,0 +1,17 @@
+version: '3'
+
+# docker-compose up
+# docker rm $(docker ps -a -q) && docker volume prune -f
+# psql -h localhost -p 5432 -U postgres 
+services:
+  postgresql:
+    image: postgres:15.2-alpine
+    restart: always
+    hostname: localhost
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "qwerty"
+    ports:
+      - '5432:5432'
+    volumes: 
+      - './_sql/:/docker-entrypoint-initdb.d/'
