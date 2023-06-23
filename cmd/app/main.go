@@ -6,7 +6,7 @@ import (
 	"log"
 	"withNats/pkg/model/cache"
 	m "withNats/pkg/model/db"
-	// "withNats/pkg/publisher"
+	"withNats/pkg/publisher"
 	"withNats/pkg/structs"
 	"withNats/pkg/subscriber"
 
@@ -51,13 +51,13 @@ func main() {
 		Db: ModelDb,
 		Cache: &Cache,
 	}
-	// err = Subscriber.DbToCache()
-	// if err != nil {
-	// 	log.Fatal("Subscriber DbToCache error ", err.Error())
-	// }
-	// go publisher.Publisher(subSettings)
+	err = Subscriber.DbToCache()
+	if err != nil {
+		log.Fatal("Subscriber DbToCache error ", err.Error())
+	}
+	go publisher.Publisher(subSettings)
 
-	// go Subscriber.Subscribe()
+	go Subscriber.Subscribe()
 
 	router := gin.Default()
 
